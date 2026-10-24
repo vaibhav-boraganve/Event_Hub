@@ -91,6 +91,80 @@ Cancel:
 curl -X POST http://127.0.0.1:8000/api/reservations/1/cancel/
 ```
 
+## API test results
+
+These screenshots are from the running API at `http://127.0.0.1:8000/api/`. The database has several events (upcoming, ongoing, and completed, in Bangalore, Pune, Delhi, and Hubbali) so the filters return more than one row.
+
+### Create an event — 201 Created
+
+![Create event](screenshots/01-create-event-201.png)
+
+### List events
+
+![List events](screenshots/02-list-events.png)
+
+### Filter events by status
+
+`GET /api/events/?status=upcoming`
+
+![Filter events by status](screenshots/03-filter-events-by-status.png)
+
+### Filter events by venue
+
+`GET /api/events/?venue=bangalore`
+
+![Filter events by venue](screenshots/04-filter-events-by-venue.png)
+
+### Reserve seats — 201 Created
+
+Priya Sharma reserves 2 seats for PyCon India 2025.
+
+![Create reservation](screenshots/05-create-reservation-201.png)
+
+### Seats deducted from the event
+
+Available seats go from 500 to 498, and `reservations_count` is 1.
+
+![Seats deducted](screenshots/06-event-seats-deducted.png)
+
+### Overbooking — 400 Bad Request
+
+Final Seat Workshop has 1 seat. Reserving 2 seats is rejected.
+
+![Overbooking](screenshots/07-overbooking-400.png)
+
+The failed request does not change the event.
+
+![Seats unchanged after overbooking](screenshots/08-overbooking-seats-unchanged.png)
+
+### Cancel a reservation
+
+`POST /api/reservations/2/cancel/`
+
+![Cancel reservation](screenshots/09-cancel-reservation.png)
+
+### Seats restored to the event
+
+PyCon India 2025 is back to 500 available seats, and confirmed `reservations_count` is 0.
+
+![Seats restored](screenshots/10-event-seats-restored.png)
+
+### List reservations
+
+![List reservations](screenshots/11-list-reservations.png)
+
+### Filter reservations by event_id
+
+`GET /api/reservations/?event_id=4` returns only Rahul Mehta’s booking for Jazz Night.
+
+![Filter reservations](screenshots/12-filter-reservations-by-event-id.png)
+
+### Request logging middleware
+
+Every API call is written to the `runserver` terminal as `METHOD path - status - duration`.
+
+![Middleware logs](screenshots/13-middleware-logs.png)
+
 ## Design decision
 
 Seat changes lock the event row inside `transaction.atomic()` before the available count is checked again.
